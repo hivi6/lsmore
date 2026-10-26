@@ -58,6 +58,10 @@ fn parse_arguments(args: &[String]) -> Result<Config, String> {
         }
     }
 
+    if paths.is_empty() {
+        return Err(String::from("Expected some paths"));
+    }
+
     return Ok(Config {
         help: help_flag,
         paths: paths,
@@ -81,7 +85,8 @@ fn lsmore_helper(path_str: String, prefix: String, is_last: bool, depth: i64) {
     }
 
     if let Some(filename) = path.file_name().and_then(|s| s.to_str()) {
-        println!("{}+- {}", prefix, filename);
+        let symbol = if is_last { "└── " } else { "├── " };
+        println!("{}{}{}", prefix, symbol, filename);
     }
 
     if path.is_file() {
@@ -115,19 +120,21 @@ fn lsmore_helper(path_str: String, prefix: String, is_last: bool, depth: i64) {
     }
 
     for (i, path) in dir_entries.iter().enumerate() {
-        let temp = if is_last { "   " } else { "|  " };
+        let temp = if is_last { "    " } else { "│   " };
+        let prefix = format!("{}{}", prefix, temp);
         let is_last = i == dir_entries.len() - 1 && file_entries.is_empty();
         let depth = if depth > 0 { depth - 1 } else { depth };
 
-        lsmore_helper(path.clone(), format!("{}{}", prefix, temp), is_last, depth);
+        lsmore_helper(path.clone(), prefix, is_last, depth);
     }
 
     for (i, path) in file_entries.iter().enumerate() {
-        let temp = if is_last { "   " } else { "|  " };
+        let temp = if is_last { "    " } else { "│   " };
+        let prefix = format!("{}{}", prefix, temp);
         let is_last = i == file_entries.len() - 1;
         let depth = if depth > 0 { depth - 1 } else { depth };
 
-        lsmore_helper(path.clone(), format!("{}{}", prefix, temp), is_last, depth);
+        lsmore_helper(path.clone(), prefix, is_last, depth);
     }
 }
 
