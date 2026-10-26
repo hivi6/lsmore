@@ -58,7 +58,7 @@ fn parse_arguments(args: &[String]) -> Result<Config, String> {
         }
     }
 
-    if paths.is_empty() {
+    if !help_flag && paths.is_empty() {
         return Err(String::from("Expected some paths"));
     }
 
